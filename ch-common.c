@@ -22,6 +22,7 @@
 #include "ColorHug.h"
 
 #include "ch-common.h"
+#include "ch-flash.h"
 
 /**
  * CHugGetColorSelect:
@@ -104,6 +105,26 @@ CHugSelfTestSensor(uint8_t min_pulses)
 }
 
 /**
+ * CHugSelfTestFlash:
+ **/
+static uint8_t
+CHugSelfTestFlash(void)
+{
+	uint8_t tmp[3] = { 'C', 'H', '\0' };
+
+	CHugFlashErase(CH_EEPROM_ADDR_OWNER, 3);
+	CHugFlashWrite(CH_EEPROM_ADDR_OWNER, 3, tmp);
+	tmp[0] = 'H';
+	tmp[1] = 'C';
+	tmp[2] = '\0';
+	CHugFlashRead(CH_EEPROM_ADDR_OWNER, 3, tmp);
+	if (tmp[0] != 'C' && tmp[1] != 'H' && tmp[1] != '\0')
+		return CH_ERROR_SELF_TEST_EEPROM;
+
+	return CH_ERROR_NONE;
+}
+
+/**
  * CHugSelfTest:
  *
  * Tests the device in the following ways:
@@ -171,6 +192,11 @@ CHugSelfTest(void)
 		rc = CH_ERROR_SELF_TEST_BLUE;
 		goto out;
 	}
+
+	/* test the flash reading and writing */
+	rc = CHugSelfTestFlash();
+	if (rc != CH_ERROR_NONE)
+		goto out;
 
 	/* success */
 	rc = CH_ERROR_NONE;

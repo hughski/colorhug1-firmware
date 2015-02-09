@@ -28,8 +28,7 @@
 #include "usb_config.h"
 #include "ch-math.h"
 #include "ch-common.h"
-
-#include <flash.h>
+#include "ch-flash.h"
 
 #include <USB/usb.h>
 #include <USB/usb_common.h>
@@ -253,33 +252,33 @@ static void
 CHugReadEEprom(void)
 {
 	/* read this into RAM so it can be changed */
-	ReadFlash(CH_EEPROM_ADDR_CONFIG + CH_EEPROM_OFFSET_SERIAL,
-		  sizeof(uint32_t),
-		  (uint8_t *) &SensorSerial);
-	ReadFlash(CH_EEPROM_ADDR_CONFIG + CH_EEPROM_OFFSET_DARK_OFFSET_RED,
-		  3 * sizeof(uint16_t),
-		  (uint8_t *) DarkCalibration);
-	ReadFlash(CH_EEPROM_ADDR_CONFIG + CH_EEPROM_OFFSET_PRE_SCALE,
-		  sizeof(CHugPackedFloat),
-		  (uint8_t *) &PreScale);
-	ReadFlash(CH_EEPROM_ADDR_CONFIG + CH_EEPROM_OFFSET_POST_SCALE,
-		  sizeof(CHugPackedFloat),
-		  (uint8_t *) &PostScale);
-	ReadFlash(CH_EEPROM_ADDR_CONFIG + CH_EEPROM_OFFSET_CALIBRATION_MAP,
-		  6 * sizeof(uint16_t),
-		  (uint8_t *) &CalibrationMap);
-	ReadFlash(CH_EEPROM_ADDR_CONFIG + CH_EEPROM_OFFSET_PCB_ERRATA,
-		  1 * sizeof(uint16_t),
-		  (uint8_t *) &PcbErrata);
-	ReadFlash(CH_EEPROM_ADDR_CONFIG + CH_EEPROM_OFFSET_REMOTE_HASH,
-		  1 * sizeof(ChSha1),
-		  (uint8_t *) &remote_hash);
-	ReadFlash(CH_EEPROM_ADDR_OWNER + CH_EEPROM_OFFSET_NAME,
-		  CH_OWNER_LENGTH_MAX * sizeof(char),
-		  (uint8_t *) OwnerName);
-	ReadFlash(CH_EEPROM_ADDR_OWNER + CH_EEPROM_OFFSET_EMAIL,
-		  CH_OWNER_LENGTH_MAX * sizeof(char),
-		  (uint8_t *) OwnerEmail);
+	CHugFlashRead(CH_EEPROM_ADDR_CONFIG + CH_EEPROM_OFFSET_SERIAL,
+		      sizeof(uint32_t),
+		      (uint8_t *) &SensorSerial);
+	CHugFlashRead(CH_EEPROM_ADDR_CONFIG + CH_EEPROM_OFFSET_DARK_OFFSET_RED,
+		      3 * sizeof(uint16_t),
+		      (uint8_t *) DarkCalibration);
+	CHugFlashRead(CH_EEPROM_ADDR_CONFIG + CH_EEPROM_OFFSET_PRE_SCALE,
+		      sizeof(CHugPackedFloat),
+		      (uint8_t *) &PreScale);
+	CHugFlashRead(CH_EEPROM_ADDR_CONFIG + CH_EEPROM_OFFSET_POST_SCALE,
+		      sizeof(CHugPackedFloat),
+		      (uint8_t *) &PostScale);
+	CHugFlashRead(CH_EEPROM_ADDR_CONFIG + CH_EEPROM_OFFSET_CALIBRATION_MAP,
+		      6 * sizeof(uint16_t),
+		      (uint8_t *) &CalibrationMap);
+	CHugFlashRead(CH_EEPROM_ADDR_CONFIG + CH_EEPROM_OFFSET_PCB_ERRATA,
+		      1 * sizeof(uint16_t),
+		      (uint8_t *) &PcbErrata);
+	CHugFlashRead(CH_EEPROM_ADDR_CONFIG + CH_EEPROM_OFFSET_REMOTE_HASH,
+		      1 * sizeof(ChSha1),
+		      (uint8_t *) &remote_hash);
+	CHugFlashRead(CH_EEPROM_ADDR_OWNER + CH_EEPROM_OFFSET_NAME,
+		      CH_OWNER_LENGTH_MAX * sizeof(char),
+		      (uint8_t *) OwnerName);
+	CHugFlashRead(CH_EEPROM_ADDR_OWNER + CH_EEPROM_OFFSET_EMAIL,
+		      CH_OWNER_LENGTH_MAX * sizeof(char),
+		      (uint8_t *) OwnerEmail);
 
 	/* the default value in flash is 0xff */
 	if (OwnerName[0] == 0xff)
@@ -312,8 +311,7 @@ CHugWriteEEprom(void)
 {
 	/* we can't call this more than 10,000 times otherwise we'll
 	 * burn out the device */
-	EraseFlash(CH_EEPROM_ADDR_CONFIG,
-		   CH_EEPROM_ADDR_CONFIG + CH_FLASH_WRITE_BLOCK_SIZE);
+	CHugFlashErase(CH_EEPROM_ADDR_CONFIG, CH_FLASH_WRITE_BLOCK_SIZE);
 
 	/* write this in one fell swoop */
 	memcpy(FlashBuffer + CH_EEPROM_OFFSET_SERIAL,
@@ -337,18 +335,17 @@ CHugWriteEEprom(void)
 	memcpy(FlashBuffer + CH_EEPROM_OFFSET_REMOTE_HASH,
 	       (void *) &remote_hash,
 	       1 * sizeof(ChSha1));
-	WriteBytesFlash(CH_EEPROM_ADDR_CONFIG,
-			CH_FLASH_WRITE_BLOCK_SIZE,
-			(uint8_t *) FlashBuffer);
+	CHugFlashWrite(CH_EEPROM_ADDR_CONFIG,
+		       CH_FLASH_WRITE_BLOCK_SIZE,
+		       FlashBuffer);
 
-	EraseFlash(CH_EEPROM_ADDR_OWNER,
-		   CH_EEPROM_ADDR_OWNER + 2 * CH_FLASH_WRITE_BLOCK_SIZE);
-	WriteBytesFlash(CH_EEPROM_ADDR_OWNER + CH_EEPROM_OFFSET_NAME,
-			CH_FLASH_WRITE_BLOCK_SIZE,
-			(uint8_t *) OwnerName);
-	WriteBytesFlash(CH_EEPROM_ADDR_OWNER + CH_EEPROM_OFFSET_EMAIL,
-			CH_FLASH_WRITE_BLOCK_SIZE,
-			(uint8_t *) OwnerEmail);
+	CHugFlashErase(CH_EEPROM_ADDR_OWNER, 2 * CH_FLASH_WRITE_BLOCK_SIZE);
+	CHugFlashWrite(CH_EEPROM_ADDR_OWNER + CH_EEPROM_OFFSET_NAME,
+		       CH_FLASH_WRITE_BLOCK_SIZE,
+		       (uint8_t *) OwnerName);
+	CHugFlashWrite(CH_EEPROM_ADDR_OWNER + CH_EEPROM_OFFSET_EMAIL,
+		       CH_FLASH_WRITE_BLOCK_SIZE,
+		       (uint8_t *) OwnerEmail);
 }
 
 /**
@@ -878,15 +875,13 @@ CHugSwitchCalibrationMatrix(uint16_t calibration_index,
 	uint8_t calibration_type;
 
 	addr = CH_CALIBRATION_ADDR + (calibration_index * 0x40);
-	ReadFlash(addr,
-		  9 * sizeof(CHugPackedFloat),
-		  (uint8_t *) calibration);
+	CHugFlashRead(addr, 9 * sizeof(CHugPackedFloat),
+		      (uint8_t *) calibration);
 	if (calibration[0].raw == 0xffffffff)
 		return CH_ERROR_NO_CALIBRATION;
 
 	/* check the calibration matrix is valid */
-	ReadFlash(addr + 0x24, 1,
-		  (uint8_t *) &calibration_type);
+	CHugFlashRead(addr + 0x24, 1, (uint8_t *) &calibration_type);
 	if (calibration_index == 0) {
 		if (calibration_type != CH_CALIBRATION_TYPE_ALL)
 			return CH_ERROR_INVALID_CALIBRATION;
@@ -984,15 +979,11 @@ CHugGetCalibrationMatrix(uint16_t calibration_index,
 
 	matrix_size = 9 * sizeof(CHugPackedFloat);
 	addr = CH_CALIBRATION_ADDR + (calibration_index * 0x40);
-	ReadFlash(addr,
-		  matrix_size,
-		  (uint8_t *) calibration);
-	ReadFlash(addr + matrix_size,
-		  sizeof(uint8_t),
-		  (uint8_t *) types);
-	ReadFlash(addr + matrix_size + 1,
-		  CH_CALIBRATION_DESCRIPTION_LEN,
-		  (uint8_t *) description);
+	CHugFlashRead(addr, matrix_size, (uint8_t *) calibration);
+	CHugFlashRead(addr + matrix_size, sizeof(uint8_t), (uint8_t *) types);
+	CHugFlashRead(addr + matrix_size + 1,
+		      CH_CALIBRATION_DESCRIPTION_LEN,
+		      (uint8_t *) description);
 	if (description[0] == 0xff)
 		return CH_ERROR_NO_CALIBRATION;
 	return CH_ERROR_NONE;
@@ -1012,12 +1003,8 @@ CHugCopyFlash(uint32_t src, uint32_t dest, uint16_t len)
 
 	/* copy in 64 byte chunks */
 	for (addr = 0; addr < len; addr += CH_FLASH_WRITE_BLOCK_SIZE) {
-		ReadFlash(src + addr,
-			  CH_FLASH_WRITE_BLOCK_SIZE,
-			  (uint8_t *) FlashBuffer);
-		WriteBytesFlash(dest + addr,
-				CH_FLASH_WRITE_BLOCK_SIZE,
-				(uint8_t *) FlashBuffer);
+		CHugFlashRead(src + addr, CH_FLASH_WRITE_BLOCK_SIZE, FlashBuffer);
+		CHugFlashWrite(dest + addr, CH_FLASH_WRITE_BLOCK_SIZE, FlashBuffer);
 	}
 }
 
@@ -1040,8 +1027,7 @@ CHugSetCalibrationMatrix(uint16_t calibration_index,
 	offset = (calibration_index % 16) * 0x40;
 
 	/* erase the destination block */
-	EraseFlash(CH_CALIBRATION_ADDR_TMP,
-		   CH_CALIBRATION_ADDR_TMP + CH_FLASH_ERASE_BLOCK_SIZE);
+	CHugFlashErase(CH_CALIBRATION_ADDR_TMP, CH_FLASH_ERASE_BLOCK_SIZE);
 
 	/* copy the block to the temporary area */
 	CHugCopyFlash(addr_block_start,
@@ -1049,8 +1035,7 @@ CHugSetCalibrationMatrix(uint16_t calibration_index,
 		      CH_FLASH_ERASE_BLOCK_SIZE);
 
 	/* erase the block */
-	EraseFlash(addr_block_start,
-		   addr_block_start + CH_FLASH_ERASE_BLOCK_SIZE);
+	CHugFlashErase(addr_block_start, CH_FLASH_ERASE_BLOCK_SIZE);
 
 	/* write matrixes before the offset */
 	CHugCopyFlash(CH_CALIBRATION_ADDR_TMP,
@@ -1068,9 +1053,9 @@ CHugSetCalibrationMatrix(uint16_t calibration_index,
 	memcpy(FlashBuffer + matrix_size + 1,
 	       (void *) description,
 	       CH_CALIBRATION_DESCRIPTION_LEN);
-	WriteBytesFlash(addr_block_start + offset,
-			CH_FLASH_WRITE_BLOCK_SIZE,
-			(uint8_t *) FlashBuffer);
+	CHugFlashWrite(addr_block_start + offset,
+		       CH_FLASH_WRITE_BLOCK_SIZE,
+		       (uint8_t *) FlashBuffer);
 
 	/* write matrixes after the offset */
 	CHugCopyFlash(CH_CALIBRATION_ADDR_TMP + offset + 0x40,
@@ -1401,10 +1386,11 @@ ProcessIO(void)
 			break;
 		}
 		flash_success = RxBuffer[CH_BUFFER_INPUT_DATA];
-		EraseFlash(CH_EEPROM_ADDR_FLASH_SUCCESS,
-			   CH_EEPROM_ADDR_FLASH_SUCCESS + 1);
-		WriteBytesFlash(CH_EEPROM_ADDR_FLASH_SUCCESS, 1,
-				(uint8_t *) &RxBuffer[CH_BUFFER_INPUT_DATA]);
+		rc = CHugFlashErase(CH_EEPROM_ADDR_FLASH_SUCCESS, 1);
+		if (rc != CH_ERROR_NONE)
+			break;
+		rc = CHugFlashWrite(CH_EEPROM_ADDR_FLASH_SUCCESS, 1,
+				    &RxBuffer[CH_BUFFER_INPUT_DATA]);
 		break;
 	case CH_CMD_GET_OWNER_NAME:
 		memcpy (&TxBuffer[CH_BUFFER_OUTPUT_DATA],
@@ -1645,8 +1631,8 @@ main(void)
 	InitializeSystem();
 
 	/* read the flash success */
-	ReadFlash(CH_EEPROM_ADDR_FLASH_SUCCESS, 1,
-		  (uint8_t *) &flash_success);
+	CHugFlashRead(CH_EEPROM_ADDR_FLASH_SUCCESS, 1,
+		      (uint8_t *) &flash_success);
 
 	/* the watchdog saved us from our doom */
 	if (!RCONbits.NOT_TO)

@@ -94,6 +94,7 @@ microchip_usbdev_SRC = ${MICROCHIP_APP_LIB_ROOT}/Microchip/USB/usb_device.c
 firmware_OBJS =							\
 	firmware.o						\
 	ch-common.o						\
+	ch-flash.o						\
 	ch-math.o						\
 	usb_descriptors_firmware.o				\
 	usb_device.o						\
@@ -102,6 +103,7 @@ firmware_OBJS =							\
 bootloader_OBJS =						\
 	bootloader.o						\
 	ch-common.o						\
+	ch-flash.o						\
 	usb_descriptors_bootloader.o				\
 	usb_device.o						\
 	usb_function_hid.o
@@ -117,6 +119,8 @@ usb_function_hid.o: ${microchip_usbhid_SRC}
 # common stuff
 ch-common.o: Makefile ch-common.h ch-common.c
 	$(CC) $(CFLAGS) ch-common.c
+ch-flash.o: Makefile ch-flash.h ch-flash.c
+	$(CC) $(CFLAGS) ch-flash.c
 ch-math.o: Makefile ch-math.h ch-math.c
 	$(CC) $(CFLAGS) ch-math.c
 ch-sram.o: Makefile ch-sram.h ch-sram.c
