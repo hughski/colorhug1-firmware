@@ -529,8 +529,11 @@
  *
  * The hardware versions are as follows:
  * 0x00		= Pre-production hardware
- * 0x01		= First generation hardware
- * 0x02-0x0f	= Reserved for future use
+ * 0x01		= ColorHug
+ * 0x02		= ColorHug2
+ * 0x03		= ColorHug+
+ * 0x04		= ColorHugALS
+ * 0x05-0x0f	= Reserved for future use
  *
  * IN:  [1:cmd]
  * OUT: [1:retval][1:cmd][1:hw_version]
