@@ -199,7 +199,8 @@ ProcessIO(void)
 			(const void *) &RxBuffer[CH_BUFFER_INPUT_DATA+0],
 			2);
 		/* allow to erase any address but not the bootloader */
-		if (address < CH_EEPROM_ADDR_RUNCODE) {
+		if (address < CH_EEPROM_ADDR_RUNCODE ||
+		    address > CH_EEPROM_ADDR_MAX) {
 			rc = CH_ERROR_INVALID_ADDRESS;
 			break;
 		}
@@ -239,7 +240,8 @@ ProcessIO(void)
 		memcpy (&address,
 			(const void *) &RxBuffer[CH_BUFFER_INPUT_DATA+0],
 			2);
-		if (address < CH_EEPROM_ADDR_RUNCODE) {
+		if (address < CH_EEPROM_ADDR_RUNCODE ||
+		    address > CH_EEPROM_ADDR_MAX) {
 			rc = CH_ERROR_INVALID_ADDRESS;
 			break;
 		}
