@@ -52,7 +52,7 @@
 /* ensure this is incremented on each released build */
 #define CH_VERSION_MAJOR			1
 #define CH_VERSION_MINOR			2
-#define CH_VERSION_MICRO			3
+#define CH_VERSION_MICRO			4
 
 /**
  * CH_CMD_GET_COLOR_SELECT:
