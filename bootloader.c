@@ -221,6 +221,11 @@ ProcessIO(void)
 			rc = CH_ERROR_INVALID_LENGTH;
 			break;
 		}
+		if (address < CH_EEPROM_ADDR_RUNCODE ||
+		    address > CH_EEPROM_ADDR_MAX) {
+			rc = CH_ERROR_INVALID_ADDRESS;
+			break;
+		}
 		ReadFlash(address, length,
 			  (uint8_t *) &TxBuffer[CH_BUFFER_OUTPUT_DATA+1]);
 		checksum = CHugCalculateChecksum (&TxBuffer[CH_BUFFER_OUTPUT_DATA+1],
