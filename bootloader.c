@@ -103,19 +103,6 @@ static uint8_t flash_success = 0xff;
 #define CHugBootFlash()		(((int(*)(void))(CH_EEPROM_ADDR_RUNCODE))())
 
 /**
- * CHugCalculateChecksum:
- **/
-static uint8_t
-CHugCalculateChecksum(uint8_t *data, uint8_t length)
-{
-	int i;
-	uint8_t checksum = 0xff;
-	for (i = 0; i < length; i++)
-		checksum ^= data[i];
-	return checksum;
-}
-
-/**
  * CHugDeviceIdle:
  **/
 static void
