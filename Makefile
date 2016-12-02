@@ -28,6 +28,10 @@
 # When editing this makefile please keep in mind that Microchip likes to put
 # white spaces in both file names and directory names.
 
+VENDOR		= hughski
+PROJECT_NAME	= colorhug2
+VERSION		= 1.2.6
+
 MICROCHIP_ROOT	= /opt/microchip
 DOWNLOAD_DIR 	= $(shell pwd)/microchip-toolchain-downloads
 PK2CMD_DIR 	= ../../pk2cmd/pk2cmd
@@ -144,7 +148,7 @@ firmware.cof firmware.hex: Makefile ${firmware_OBJS}
 firmware.bin: firmware.hex $(COLORHUG_CMD)
 	$(COLORHUG_CMD) inhx32-to-bin $< $@
 
-all: sanity firmware.bin bootloader.hex
+all: sanity firmware.bin bootloader.hex $(VENDOR)-$(PROJECT_NAME)-$(VERSION).cab
 
 install: sanity firmware.bin
 	${COLORHUG_CMD} flash-firmware-force firmware.bin
@@ -233,7 +237,18 @@ sudo-uninstall-toolchain: ${TOOLCHAIN_UNINSTALLER}
 
 clean: clean-toolchain clean-app-lib
 	rm -f							\
+	*.cab							\
 	*.hex							\
 	*.cof							\
 	*.bin							\
 	*.o
+
+CAB_FILES=							\
+	firmware.bin						\
+	firmware.metainfo.xml
+
+check: firmware.metainfo.xml
+	appstream-util validate-relax $<
+
+%.cab: $(CAB_FILES)
+	gcab --create --nopath $@ $(CAB_FILES)

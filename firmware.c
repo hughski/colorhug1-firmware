@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*-
  *
- * Copyright (C) 2011-2014 Richard Hughes <richard@hughsie.com>
+ * Copyright (C) 2011-2016 Richard Hughes <richard@hughsie.com>
  *
  * Licensed under the GNU General Public License Version 2
  *
@@ -1114,23 +1114,6 @@ out:
 }
 
 /**
- * ChSha1Valid:
- *
- * A hash is only valid when it is first set. It is invalid when all
- * bytes of the hash are 0xff.
- **/
-static uint8_t
-ChSha1Valid(ChSha1 *sha1)
-{
-	uint8_t i;
-	for (i = 0; i < 20; i++) {
-		if (sha1->bytes[i] != 0xff)
-			return CH_ERROR_NONE;
-	}
-	return CH_ERROR_INVALID_VALUE;
-}
-
-/**
  * ProcessIO:
  **/
 static void
@@ -1219,11 +1202,6 @@ ProcessIO(void)
 			sizeof(uint8_t));
 		break;
 	case CH_CMD_GET_REMOTE_HASH:
-
-		/* check is valid */
-		rc = ChSha1Valid(&remote_hash);
-		if (rc != CH_ERROR_NONE)
-			break;
 		memcpy (&TxBuffer[CH_BUFFER_OUTPUT_DATA],
 			(void *) &remote_hash,
 			sizeof(ChSha1));
