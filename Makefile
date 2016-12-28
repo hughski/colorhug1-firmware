@@ -29,7 +29,7 @@
 # white spaces in both file names and directory names.
 
 VENDOR		= hughski
-PROJECT_NAME	= colorhug2
+PROJECT_NAME	= colorhug
 VERSION		= 1.2.6
 
 MICROCHIP_ROOT	= /opt/microchip
